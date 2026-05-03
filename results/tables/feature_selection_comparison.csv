@@ -1,0 +1,5 @@
+feature_set,num_features,f1
+all_features,29,0.8571
+top_20_mutual_info,20,0.8571
+top_10_mutual_info,10,0.8571
+top_5_mutual_info,5,0.9091

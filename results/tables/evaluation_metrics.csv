@@ -1,0 +1,2 @@
+accuracy,precision,recall,f1,true_positive_rate,false_positive_rate,true_negative,false_positive,false_negative,true_positive,average_latency_seconds
+0.9625,1.0,0.925,0.961,0.925,0.0,40,0,3,37,0.004388

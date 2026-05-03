@@ -1,0 +1,2 @@
+"""PhishGuard-Lite package."""
+

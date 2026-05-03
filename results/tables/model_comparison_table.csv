@@ -1,0 +1,5 @@
+model,accuracy,precision,recall,f1,mean_phishing_score
+Logistic Regression,0.9167,1.0,0.8333,0.9091,0.4096
+Random Forest,0.875,1.0,0.75,0.8571,0.4098
+Linear SVM,0.9167,1.0,0.8333,0.9091,0.4749
+Gradient Boosting,0.9167,1.0,0.8333,0.9091,0.4167

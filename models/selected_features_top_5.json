@@ -1,0 +1,7 @@
+[
+  "has_https",
+  "domain_length",
+  "subdomain_count",
+  "url_length",
+  "contains_login"
+]

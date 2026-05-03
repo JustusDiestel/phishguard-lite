@@ -1,0 +1,12 @@
+[
+  "has_https",
+  "domain_length",
+  "subdomain_count",
+  "url_length",
+  "contains_login",
+  "contains_update",
+  "entropy_score",
+  "num_hyphens",
+  "num_special_chars",
+  "contains_secure"
+]
