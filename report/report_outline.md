@@ -4,11 +4,11 @@
 2. Background
 3. Related Work and Paper Connection
 4. System Design
-5. Feature Engineering
+5. Feature Extraction
 6. Feature Selection
-7. Model Design
-8. Hugging Face Pretrained Model Integration
-9. Hybrid Risk Scoring and Explanation Layer
+7. Classical Machine Learning Models
+8. Pretrained Hugging Face Model Integration
+9. Hybrid Risk Scoring and Explainability
 10. Experimental Setup
 11. Results
 12. Discussion
@@ -16,4 +16,4 @@
 14. Future Work
 15. Conclusion
 16. References
-17. Classroom Presentation Notes
+17. Classroom Presentation Section

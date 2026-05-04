@@ -8,89 +8,70 @@
 
 ## 1. Introduction
 
-Phishing remains one of the most common cybersecurity threats faced by individuals, universities, companies, and public institutions. In a phishing attack, an attacker attempts to deceive a user into visiting a fraudulent website, opening a malicious link, or submitting sensitive information such as usernames, passwords, payment details, or account recovery codes. Although many phishing attacks are distributed through email, text messages, social media, and instant messaging platforms, the final point of interaction is often a URL. For this reason, phishing URL detection is an important defensive task.
+Phishing is a persistent cybersecurity problem in which attackers attempt to deceive users into visiting fraudulent websites, opening malicious links, or submitting sensitive information. Although phishing attacks are often delivered through email, text messages, social media, or collaboration platforms, the URL is frequently the final object the user must trust. For this reason, phishing URL detection is a practical and important defensive task.
 
-Traditional phishing protection often depends on blacklists, browser warnings, or manually maintained threat feeds. These mechanisms are useful, but they have an important limitation: a newly created phishing URL may not appear in a blacklist until after users have already received it. Attackers also frequently modify domains, subdomains, paths, and query strings to avoid exact-match detection. A lightweight machine learning approach can help address this problem by learning suspicious patterns from URL structure rather than relying only on known malicious addresses.
+Traditional phishing protection often relies on blacklists, browser warnings, or manually maintained threat intelligence feeds. These approaches are useful, but they have a delay problem: a newly created phishing URL may reach users before it appears in a blacklist. Attackers also modify domains, subdomains, paths, query strings, and URL shorteners to avoid exact-match detection. Machine learning can help by learning suspicious URL patterns rather than only checking whether a URL is already known.
 
-This project presents **PhishGuard-Lite**, a practical phishing URL detection prototype. The system combines handcrafted URL features, feature selection, classical machine learning models, optional pretrained Hugging Face models, and a transparent hybrid risk score. The goal is not to claim production-level phishing protection, but to build a clean and explainable student project that demonstrates how multiple detection strategies can be combined in a lightweight way.
+This project presents **PhishGuard-Lite**, a lightweight phishing URL detection prototype. It combines handcrafted URL features, feature selection, classical machine learning models, optional pretrained Hugging Face models, a character n-gram URL text model, an optional character-level neural network, and a transparent hybrid risk score. The goal is not to claim production-level phishing protection. The goal is to build a clean, runnable, explainable university project that demonstrates how multiple defensive detection strategies can be combined.
 
-The project supports two main use cases. First, a user can enter a single URL and receive a prediction, risk level, confidence score, model comparison, suspicious indicators, and extracted feature table. Second, a labeled CSV dataset can be evaluated to produce common classification metrics such as accuracy, precision, recall, F1-score, true positive rate, false positive rate, confusion matrix, feature importance, and latency estimates.
+The system supports two main workflows. First, a user can enter a single URL and receive a final prediction, risk level, confidence score, classical model result, Hugging Face result when available, rule-based score, suspicious indicators, and extracted feature table. Second, a labeled CSV dataset can be evaluated to produce accuracy, precision, recall, F1-score, true positive rate, false positive rate, confusion matrix, average prediction latency, feature importance, and feature selection comparisons.
 
-The project is intentionally designed to be runnable on a local machine using Python, scikit-learn, Streamlit, and optional Hugging Face Transformers. If the Hugging Face layer cannot be loaded because of missing internet access or limited hardware resources, the system continues to operate using the classical machine learning model and rule-based scoring layer.
+To move beyond the small synthetic demonstration dataset, the project was also evaluated on the UCI Machine Learning Repository **PhiUSIIL Phishing URL (Website)** dataset. This external evaluation gives the report a more realistic basis for discussing model performance, while still keeping the prototype lightweight and safe to run locally.
 
 ## 2. Background
 
-Phishing detection can be approached in several ways. Blacklist-based systems compare a URL against a database of known malicious links. Content-based systems inspect the HTML, text, forms, scripts, and visual structure of a webpage. Network-based systems may use DNS records, WHOIS information, TLS certificate data, hosting information, or domain age. Machine learning systems attempt to learn patterns that separate phishing and legitimate examples.
+Phishing detection can be approached in several ways. Blacklist-based systems compare URLs against databases of known malicious links. Content-based systems inspect HTML, page text, forms, scripts, screenshots, and visual similarity. Network-based systems may use DNS records, WHOIS information, certificate metadata, hosting details, or domain age. Machine learning systems attempt to learn patterns that distinguish phishing and legitimate examples.
 
-This project focuses on **URL-based phishing detection**. URL-based detection is attractive for a lightweight prototype because the system does not need to crawl websites, execute scripts, or collect webpage content. A URL can be analyzed quickly and safely as text. Useful signals include URL length, number of subdomains, number of hyphens, use of IP addresses, presence of suspicious keywords, use of URL shorteners, suspicious top-level domains, and unusually high character entropy.
+PhishGuard-Lite focuses mainly on **URL-based phishing detection**. URL-only detection is attractive for a classroom prototype because it is fast, does not require crawling potentially dangerous webpages, and can be demonstrated safely. A URL can reveal useful signals such as length, number of subdomains, use of IP addresses, use of suspicious keywords, high character entropy, unusual punctuation, or brand names placed outside official domains.
 
-However, URL-based detection also has limitations. A legitimate URL may contain words such as "login" or "account" because many real websites have account pages. Similarly, a phishing URL may use a short and clean-looking domain. Therefore, individual URL features should not be treated as proof of phishing. Instead, they are best used as evidence that contributes to a risk estimate.
+URL-only detection also has limitations. A legitimate website may contain words such as `login`, `account`, or `secure`. A phishing URL may use HTTPS and a clean-looking domain. Therefore, no single feature should be treated as proof of phishing. The system instead combines many weak signals and estimates risk.
 
-Classical machine learning models are suitable for this type of structured feature data. Logistic Regression provides a simple linear baseline. Random Forest can learn nonlinear patterns and provides feature importance. Linear Support Vector Machines can work well on small numeric feature sets. Gradient Boosting can also capture nonlinear relationships. In this project, the Random Forest model is used as the main model because it is lightweight, works well with tabular features, and supports feature importance analysis.
+Classical machine learning is suitable for structured URL features. Logistic Regression provides a simple linear baseline. Random Forest can model nonlinear feature interactions and provide feature importance. Linear SVM is a lightweight margin-based classifier. Gradient Boosting is a stronger tree-based model that can capture nonlinear structure. In this project, Random Forest remains the main deployable model because it is accurate, fast, and interpretable enough for a student system.
 
-Pretrained transformer models offer a different perspective. Instead of relying only on manually selected numeric features, a pretrained URL model can process the URL as text and learn token patterns from larger training data. Hugging Face provides access to pretrained models for phishing or malicious URL classification. These models can improve generalization in some cases, but they may require internet access, disk space, and more computing resources. Therefore, this project treats the Hugging Face layer as optional and includes fallback logic.
+Pretrained transformer models and other deep learning approaches offer a different view. They process URLs as text and may learn token patterns from larger training data. However, pretrained models require more resources and may fail to load without internet access. For this reason, PhishGuard-Lite treats Hugging Face integration as optional and includes fallback behavior.
 
 ## 3. Related Work and Paper Connection
 
-The referenced academic topic emphasizes lightweight machine learning-based phishing detection, feature selection, and pretrained or deep learning models. PhishGuard-Lite is connected to that direction in four main ways. First, it uses phishing URL detection as the target cybersecurity problem. Second, it extracts structured URL features and evaluates classical machine learning models. Third, it applies feature selection to compare smaller feature subsets against the full feature set. Fourth, it integrates optional pretrained Hugging Face models as a deep learning component.
+The referenced academic direction focuses on phishing detection, feature selection, machine learning, and deep learning or pretrained models. PhishGuard-Lite connects to this direction in five ways:
 
-It is important to state clearly that this project is a **practical adaptation**, not a full reproduction of the referenced paper. A full reproduction would require the same dataset, the same preprocessing assumptions, the same experimental protocol, the same model configurations, and direct comparison with the original paper's results. This project does not attempt that. Instead, it implements the central ideas in a smaller, classroom-suitable system.
+1. It uses phishing URL detection as the main cybersecurity problem.
+2. It extracts handcrafted URL features.
+3. It applies feature selection to compare full and reduced feature sets.
+4. It evaluates multiple lightweight classical machine learning models.
+5. It adds pretrained/deep learning style variants through Hugging Face inference, character TF-IDF modeling, and an optional character-CNN.
 
-The practical adaptation is useful because it turns the paper's general research direction into a working prototype. The system allows students to test URLs, inspect features, evaluate models, view confusion matrices, and discuss the trade-offs between handcrafted features, feature selection, classical machine learning, pretrained models, and explainability. The project also demonstrates honest limitations: performance on a small sample dataset should not be interpreted as performance on real-world phishing traffic.
+This project is a **practical adaptation**, not a full reproduction of a referenced paper. A full reproduction would require the original dataset, preprocessing assumptions, model configurations, hyperparameters, train/test protocol, and direct comparison with the paper's reported values. PhishGuard-Lite instead implements the central ideas in a smaller and more explainable system suitable for a university project.
 
-##  3.1 Why are Phishing URLS detectable?
-Phishing-URLs lassen sich erkennen, weil Angreifer bei der Erstellung solcher Links grundlegenden Einschränkungen unterliegen. Insbesondere können sie keine legitimen Domains wie etwa die von Banken oder großen Plattformen frei verwenden, da diese bereits registriert und geschützt sind. Stattdessen müssen sie auf alternative Domainnamen ausweichen, die der ursprünglichen Adresse lediglich ähneln. Dadurch entstehen zwangsläufig Abweichungen, die sich analysieren und als Muster identifizieren lassen.
-
-Um dennoch Vertrauen zu erwecken, enthalten Phishing-URLs häufig bestimmte Schlüsselbegriffe wie „login“, „secure“ oder „verify“. Diese sollen Seriosität vortäuschen, führen jedoch gleichzeitig zu charakteristischen Strukturen, die von Erkennungssystemen genutzt werden können. Zusätzlich greifen Angreifer oft auf neu registrierte oder kostengünstige Domains zurück, da Phishing-Seiten in der Regel schnell entdeckt und wieder entfernt werden. Auch dies ist ein unterscheidbares Merkmal, da legitime Webseiten meist eine längere Historie besitzen.
-
-Ein weiterer wichtiger Punkt ist, dass Phishing-Angriffe primär darauf abzielen, menschliche Nutzer zu täuschen und nicht unbedingt automatisierte Systeme perfekt zu umgehen. Viele Nutzer prüfen URLs nur oberflächlich, wodurch bereits leicht veränderte oder verlängerte Adressen überzeugend wirken können. Technisch betrachtet enthalten diese jedoch oft Auffälligkeiten wie ungewöhnlich lange URLs, viele Subdomains, Sonderzeichen oder irreführende Domainstrukturen. Ein Beispiel dafür ist eine URL, bei der der eigentliche Domainname am Ende steht, während bekannte Begriffe wie „paypal“ nur als Teil einer Subdomain erscheinen.
-
-Die Erkennung von Phishing basiert daher nicht auf einer einzelnen Eigenschaft, sondern auf der Kombination mehrerer Merkmale. Maschinelle Lernverfahren bewerten diese Merkmale und bestimmen auf Basis statistischer Muster, wie wahrscheinlich es ist, dass es sich um eine betrügerische URL handelt. Dabei handelt es sich nicht um eine absolute Entscheidung, sondern um eine Wahrscheinlichkeitsaussage. Besonders gut gemachte Phishing-Seiten können daher schwer zu erkennen sein, weshalb zusätzlich weitere Informationen wie Webseiteninhalt, Zertifikate oder Domain-Metadaten einbezogen werden.
-
-Zusammenfassend lässt sich sagen, dass Phishing-URLs erkennbar sind, weil Angreifer gezwungen sind, Kompromisse einzugehen. Sie können die Identität legitimer Anbieter nicht vollständig imitieren und greifen daher auf Strategien zurück, die zwar für Menschen oft überzeugend wirken, aber gleichzeitig messbare und wiederkehrende Muster erzeugen. Diese Muster bilden die Grundlage für moderne Erkennungssysteme.
-
-Echte: https://www.paypal.com/login
-
-Fake:   https://paypal-login-security.com
-        https://paypaI.com/login
-        https://paypal.com.verify-account.ru
-        https://bit.ly/abc123
-
-
-## 3.2 Quanta Computers Phishing Case
-Ein bekanntes Beispiel für erfolgreiches Phishing im großen Unternehmenskontext ist der sogenannte „Quanta Computer“-Betrug, bei dem unter anderem Google und Facebook betroffen waren. In diesem Fall nutzte der Angreifer keine offensichtlich auffälligen oder technisch komplexen Methoden, sondern setzte gezielt auf täuschend echt wirkende Domainnamen und glaubwürdige Kommunikationsinhalte. Er registrierte Domains, die dem tatsächlichen Zulieferer Quanta Computer ähnelten, beispielsweise Varianten wie „quanta-computer.com“ oder „quantacomputers.com“. Diese unterscheiden sich nur minimal von legitimen Adressen und sind für menschliche Empfänger auf den ersten Blick kaum als betrügerisch erkennbar.
-
-Auf Basis dieser Domains wurden anschließend E-Mails versendet, die wie legitime Geschäftskommunikation wirkten, insbesondere in Form von Rechnungen oder Zahlungsaufforderungen. Da große Unternehmen regelmäßig mit zahlreichen Lieferanten interagieren, erschien diese Kommunikation plausibel und wurde nicht ausreichend hinterfragt. Entscheidend ist hierbei, dass es sich nicht um klassisches Phishing mit gefälschten Login-Seiten handelte, sondern um eine Form des sogenannten Business Email Compromise. Dabei wird weniger auf technische Täuschung als vielmehr auf Vertrauen und organisatorische Abläufe gesetzt.
-
-Der Angriff war insofern erfolgreich, als dass Mitarbeiter die Anweisungen aus den E-Mails befolgten und Zahlungen an die vom Angreifer kontrollierten Konten überwiesen. Insgesamt entstand ein Schaden von über 100 Millionen US-Dollar. Dieses Beispiel verdeutlicht, dass Phishing nicht zwangsläufig durch auffällige oder fehlerhafte URLs gekennzeichnet ist. Vielmehr können bereits geringfügige Abweichungen in Domainnamen ausreichen, um glaubwürdig zu erscheinen, insbesondere wenn sie in einen realistischen Kontext eingebettet sind.
+The project also reflects an important lesson from phishing detection research: more features or more complex models do not automatically produce better systems. Feature quality, dataset quality, evaluation design, and deployment constraints matter. The optional character-CNN included in this project is useful for increasing technical difficulty, but its benchmark result shows that a simple neural model trained briefly is not necessarily superior to strong lightweight baselines.
 
 ## 4. System Design
 
-PhishGuard-Lite is organized as a modular Python project. The main components are:
+PhishGuard-Lite is organized as a modular Python project. The major components are:
 
-- Feature extraction module
-- Feature selection module
-- Classical machine learning training module
-- Hugging Face model wrapper
-- Hybrid detector
-- Explanation module
-- Evaluation and metrics module
-- Streamlit interface
-- Report asset generation script
+- `feature_extraction.py`: converts URLs into numeric handcrafted features.
+- `feature_selection.py`: computes mutual information and permutation-importance based feature rankings.
+- `classical_models.py`: trains Logistic Regression, Random Forest, Linear SVM, and Gradient Boosting models.
+- `url_text_models.py`: trains a character TF-IDF plus Logistic Regression URL text model.
+- `deep_url_model.py`: trains an optional lightweight character-CNN.
+- `hf_model.py`: lazily loads optional pretrained Hugging Face URL classifiers.
+- `hybrid_detector.py`: combines classical ML, Hugging Face output, and rule-based scores.
+- `explanation.py`: generates human-readable suspicious indicators.
+- `app.py`: provides a Streamlit interface for single URL analysis and dataset evaluation.
+- `real_dataset_eval.py`: evaluates the system on the UCI PhiUSIIL dataset.
 
-The system accepts either a single URL or a labeled CSV file. For single URL analysis, the system extracts handcrafted features, obtains a classical machine learning phishing score, optionally obtains a Hugging Face score, computes a rule-based risk score, combines the scores into a final hybrid score, and returns an explanation. For batch evaluation, the system predicts labels for a dataset and computes evaluation metrics.
+For single URL prediction, the system extracts handcrafted features, obtains a classical phishing score, optionally obtains a Hugging Face score, computes a rule-based score, combines these values into a final hybrid score, and displays explanations. For dataset evaluation, the system processes a CSV file or the UCI dataset and reports quantitative metrics.
 
-**Figure 1. System architecture placeholder**
+**Figure 1. System architecture**
 
-![Figure 1: System architecture placeholder](figures/system_architecture_placeholder.png)
+![Figure 1: System architecture](figures/system_architecture_placeholder.png)
 
-The modular design supports classroom demonstration because each part can be explained separately. For example, a teacher can ask how the URL is converted into features, how feature selection works, how the Random Forest produces a score, how fallback behavior works, or how the final hybrid score is calculated.
+This design is intentionally practical. The system can run without Hugging Face, without crawling live websites, and without requiring a GPU. More advanced components are available, but the baseline remains lightweight.
 
-## 5. Feature Engineering
+## 5. Feature Extraction
 
-Feature engineering converts each URL into a numeric vector. The extractor is designed to be robust against malformed input and missing schemes. If a URL does not include `http://` or `https://`, the parser adds a temporary scheme so that the URL can still be analyzed.
+Feature extraction converts a URL into a fixed numeric vector. The extractor is robust against missing URL schemes and malformed input. If a URL does not include `http://` or `https://`, the parser adds a temporary scheme so that standard URL parsing can still be applied.
 
-The project extracts structural, lexical, and keyword-based features. Structural features describe the length and shape of the URL, such as total URL length, domain length, path length, query length, number of dots, number of slashes, and path depth. Lexical features include counts of hyphens, digits, special characters, and entropy. Binary indicator features identify specific suspicious patterns such as an IP address, `@` symbol, double-slash redirect pattern, suspicious top-level domain, and URL shortener. Keyword indicators detect words commonly seen in phishing lures, such as `login`, `verify`, `secure`, `account`, `update`, and `bank`.
+The features are grouped into structural, lexical, keyword, and risk-indicator categories. Structural features include total URL length, domain length, path length, query length, number of dots, number of slashes, path depth, and subdomain count. Lexical features include the number of hyphens, digits, special characters, and Shannon entropy. Risk indicators include IP address usage, `@` symbols, double-slash redirect patterns, suspicious top-level domains, and URL shorteners. Keyword features detect terms commonly used in credential theft lures, such as `login`, `verify`, `secure`, `account`, `update`, and `bank`, as well as brand names such as `paypal`, `google`, `microsoft`, `apple`, and `amazon`.
 
 **Table 1. Extracted URL features**
 
@@ -113,27 +94,27 @@ The project extracts structural, lexical, and keyword-based features. Structural
 | `has_double_slash_redirect` | Whether path or query contains a double-slash redirect-like pattern |
 | `has_suspicious_tld` | Whether the top-level domain appears in a suspicious TLD list |
 | `has_url_shortener` | Whether the registered domain is a known URL shortener |
-| `contains_*` | Keyword indicators for login, verify, secure, account, update, bank, and brands |
+| `contains_*` | Keyword indicators for credential terms and selected brand names |
 | `entropy_score` | Shannon entropy of the URL string |
 
-These features are not perfect indicators. For example, HTTPS does not guarantee legitimacy because phishing sites can also use TLS certificates. Likewise, a legitimate banking site may contain the word "login". The purpose of feature engineering is to provide a set of signals that a model can weigh together.
+These features are intentionally simple. They are useful for speed and explainability, but they cannot represent all phishing behavior. For example, HTTPS is now common on both legitimate and phishing websites. Similarly, a real login page naturally contains account-related keywords.
 
 ## 6. Feature Selection
 
-Feature selection is included for two reasons. First, it supports the academic focus on lightweight phishing detection. A smaller feature set can reduce complexity, improve interpretability, and lower computation cost. Second, it provides a way to study which URL features are most useful for the model.
+Feature selection is included because the project topic emphasizes lightweight detection. Reducing the feature set can lower complexity, reduce noise, and make the system easier to explain. It can also show whether the full feature list is necessary.
 
-The project implements two feature selection approaches:
+The project implements two feature selection methods:
 
-- **Permutation importance:** measures how model performance changes when each feature is randomly shuffled.
-- **SelectKBest with mutual information:** estimates statistical dependence between each feature and the phishing label.
+- **Permutation importance:** measures how model performance changes when a feature is randomly shuffled.
+- **SelectKBest with mutual information:** estimates statistical dependence between each feature and the label.
 
-The evaluation compares the full feature set against the top 20, top 10, and top 5 features selected by mutual information. Feature lists are saved as JSON files so that they can be reused or inspected. The report asset script generates a feature selection comparison chart.
+The sample-data experiment compares all 29 features against the top 20, top 10, and top 5 mutual information features. The feature lists are saved as JSON files for inspection and reuse.
 
-**Figure 5. Feature selection comparison placeholder**
+**Figure 5. Feature selection comparison**
 
 ![Figure 5: Feature selection comparison](figures/feature_selection_comparison.png)
 
-**Table 3. Feature selection results**
+**Table 2. Feature selection results on the demonstration dataset**
 
 | Feature set | Number of features | F1-score |
 |---|---:|---:|
@@ -142,26 +123,22 @@ The evaluation compares the full feature set against the top 20, top 10, and top
 | Top 10 mutual information features | 10 | 0.8571 |
 | Top 5 mutual information features | 5 | 0.9091 |
 
-## 6.1 Features to detect phishing URLs
-Das Paper zeigt, dass bei der Erkennung von Phishing-Webseiten nicht primär die Anzahl der verwendeten Features entscheidend ist, sondern deren Aussagekraft. Zwar wurden zunächst sehr viele Merkmale aus den URLs und Webseiten extrahiert, jedoch führte nicht die bloße Menge dieser Merkmale zum besten Ergebnis. Stattdessen zeigte sich, dass eine gezielte Auswahl weniger, aber relevanter Attribute nahezu dieselbe oder sogar eine bessere Erkennungsleistung ermöglichen kann. Das ist ein wichtiger Punkt, weil viele Attribute auch unnötige Informationen oder Rauschen enthalten können. Solche irrelevanten Merkmale verbessern das Modell nicht, sondern können es sogar schwächen, da es Zusammenhänge lernt, die für die eigentliche Unterscheidung zwischen legitimen und betrügerischen Webseiten keine Bedeutung haben.
-Die zentrale Aussage ist daher, dass Qualität wichtiger ist als Quantität. Ein kleines Set gut ausgewählter Attribute kann typische Phishing-Muster bereits ausreichend abbilden, beispielsweise auffällige URL-Strukturen, verdächtige Schlüsselbegriffe, ungewöhnliche Domain-Eigenschaften oder technische Merkmale der Webseite. Wenn diese Merkmale stark mit Phishing zusammenhängen, liefern sie dem Modell genügend Information, um zuverlässige Entscheidungen zu treffen. Zusätzliche Attribute bringen dann nur noch geringen Nutzen, erhöhen aber den Rechenaufwand und können das Risiko von Overfitting steigern.
-Gerade für praktische Anwendungen ist diese Erkenntnis relevant. Ein Modell mit weniger Attributen ist schneller, ressourcenschonender und leichter einsetzbar, etwa in Echtzeitsystemen oder Browser-Schutzmechanismen. Das Paper macht damit deutlich, dass ein gutes Phishing-Erkennungssystem nicht möglichst viele Daten sammeln muss, sondern die richtigen Merkmale identifizieren sollte. Die Leistung eines Modells hängt also weniger davon ab, wie umfangreich der Merkmalskatalog ist, sondern davon, ob die ausgewählten Attribute tatsächlich zwischen legitimen und betrügerischen Webseiten unterscheiden können.
+The demonstration result suggests that a reduced feature set can perform competitively. However, because the demonstration dataset is small and synthetic, this result should be interpreted as a feature-selection workflow check rather than a final scientific conclusion.
 
+## 7. Classical Machine Learning Models
 
-## 7. Model Design
-
-The project trains several classical machine learning models:
+The classical machine learning layer trains four models:
 
 - Logistic Regression
 - Random Forest
 - Linear SVM
 - Gradient Boosting
 
-The Random Forest is selected as the main model because it performs well on structured tabular features, can model nonlinear interactions, and provides feature importance values. Logistic Regression is useful as a simple baseline. Linear SVM provides another lightweight classifier, although its confidence score requires conversion from the decision function. Gradient Boosting is included as an optional comparison model.
+The main deployable model is Random Forest because it handles nonlinear feature relationships, works well on tabular data, and provides feature importance. Logistic Regression is useful as a simple baseline. Linear SVM gives another lightweight comparison. Gradient Boosting is included because it often performs strongly on structured features.
 
-The training process reads a CSV file, extracts URL features, splits the data into training and test sets, trains each model, evaluates classification metrics, and saves the trained model bundles using Joblib. The main saved model is `models/phishguard_rf.joblib`.
+The training script reads a labeled CSV file, extracts URL features, splits the data into training and test sets, trains each model, evaluates metrics, and saves model bundles with Joblib.
 
-**Table 2. Model comparison**
+**Table 3. Classical model comparison on the demonstration dataset**
 
 | Model | Accuracy | Precision | Recall | F1-score |
 |---|---:|---:|---:|---:|
@@ -170,20 +147,27 @@ The training process reads a CSV file, extracts URL features, splits the data in
 | Linear SVM | 0.9167 | 1.0000 | 0.8333 | 0.9091 |
 | Gradient Boosting | 0.9167 | 1.0000 | 0.8333 | 0.9091 |
 
-## 8. Hugging Face Pretrained Model Integration
+These numbers come from the small safe demonstration dataset. They are useful for checking the local pipeline, but the UCI evaluation in Section 11 is more meaningful.
 
-The Hugging Face layer is implemented as a lazy-loading wrapper around pretrained URL classification models. The wrapper can attempt to load models such as:
+## 8. Pretrained Hugging Face Model Integration
+
+The Hugging Face layer is implemented as a lazy-loading wrapper around pretrained text-classification models. The wrapper can attempt to load models such as:
 
 - `CrabInHoney/urlbert-tiny-v4-phishing-classifier`
 - `CrabInHoney/urlbert-tiny-v4-malicious-url-classifier`
 - `Eason918/malicious-url-detector-v2`
 - `darshan8950/phishing_url_detection_BERT`
 
-The model is loaded only when the user enables the Hugging Face layer and requests a prediction. This design avoids unnecessary startup cost and makes offline classroom demonstrations more reliable. If the model cannot be loaded because of missing dependencies, missing internet access, model download failure, or hardware constraints, the wrapper returns an unavailable result instead of crashing the application.
+The model is loaded only when the user enables the Hugging Face layer and requests prediction. This avoids unnecessary startup time and makes classroom demonstrations reliable. If loading fails because of missing internet access, unavailable model files, memory limits, dependency problems, or unsupported model formats, the system returns an unavailable result rather than crashing.
 
-This layer represents the pretrained/deep learning component of the project. It is not treated as mandatory because pretrained transformer models are heavier than the classical feature-based model. Instead, it provides an optional comparison signal for the hybrid risk engine.
+In addition to Hugging Face inference, the project adds two local URL-text learning variants:
 
-## 9. Hybrid Risk Scoring and Explanation Layer
+- **Character TF-IDF + Logistic Regression:** a lightweight model that learns from raw URL character n-grams.
+- **Character-CNN URL model:** an optional PyTorch neural network that learns character embeddings and convolutional URL patterns.
+
+These additions increase the technical difficulty of the project while preserving the defensive and educational scope. They also allow comparison between handcrafted features, text-based machine learning, and a small deep learning model.
+
+## 9. Hybrid Risk Scoring and Explainability
 
 The hybrid risk engine combines three sources of evidence:
 
@@ -191,73 +175,71 @@ The hybrid risk engine combines three sources of evidence:
 - Hugging Face phishing score, when available
 - Rule-based risk score
 
-When the Hugging Face layer is available, the formula is:
+When Hugging Face inference is available, the formula is:
 
 ```text
 final_score = 0.40 * classical_ml_score + 0.40 * hf_score + 0.20 * rule_score
 ```
 
-When the Hugging Face layer is disabled or unavailable, the fallback formula is:
+When Hugging Face inference is disabled or unavailable, the fallback formula is:
 
 ```text
 final_score = 0.70 * classical_ml_score + 0.30 * rule_score
 ```
 
-The final score is interpreted using the following thresholds:
+Risk levels are defined as:
 
-- LOW risk: final score below 0.40
-- MEDIUM risk: final score from 0.40 to below 0.70
-- HIGH risk: final score of 0.70 or higher
+- LOW: final score below 0.40
+- MEDIUM: final score from 0.40 to below 0.70
+- HIGH: final score of 0.70 or higher
 
 The final prediction is phishing when the final score is at least 0.50. Otherwise, the prediction is legitimate.
 
-The explanation layer produces simple human-readable reasons based on activated URL features. Example explanations include: "URL is unusually long", "URL contains an IP address instead of a normal domain", "URL contains credential-related keyword: login", and "URL contains a brand name outside the official domain." These explanations are not full explainable AI in the formal sense. They are rule-based summaries intended to help a non-expert understand why the URL appears suspicious.
+The explanation layer gives simple human-readable reasons based on activated features. Example explanations include: "URL is unusually long", "URL contains an IP address instead of a normal domain", "URL contains credential-related keyword: login", and "URL contains a brand name outside the official domain." These explanations are not full formal explainable AI. They are transparent rule-based indicators designed for classroom presentation and user understanding.
 
 ## 10. Experimental Setup
 
-The prototype includes a small safe demonstration dataset located at `data/sample_urls.csv`. The dataset has two columns: `url` and `label`, where `0` means legitimate and `1` means phishing. The phishing examples are synthetic or reserved-domain style examples and are included only for educational testing. They are not real credential-stealing websites.
+The project uses two evaluation settings.
 
-The experimental pipeline consists of the following steps:
+The first setting is a small safe demonstration dataset in `data/sample_urls.csv`. It uses synthetic suspicious-looking examples and harmless legitimate examples. This dataset is useful for local testing and classroom demonstrations, but it is not a real benchmark.
 
-1. Load the labeled URL dataset.
-2. Extract handcrafted URL features.
-3. Split the dataset into training and test sets.
-4. Train classical machine learning models.
-5. Compare model metrics.
-6. Run feature selection using mutual information and permutation importance.
-7. Evaluate the saved Random Forest model.
-8. Generate confusion matrix, feature importance, feature selection, model comparison, and latency assets.
+The second setting is the UCI Machine Learning Repository **PhiUSIIL Phishing URL (Website)** dataset, dataset ID 967. The dataset contains 235,795 examples: 100,945 phishing and 134,850 legitimate. It includes a raw `URL` column, URL-derived features, and webpage-derived features. To keep the evaluation aligned with PhishGuard-Lite's URL-only design, the benchmark uses the raw `URL` column and extracts this project's own features from it.
 
-The main evaluation metrics are accuracy, precision, recall, F1-score, true positive rate, false positive rate, confusion matrix, and average prediction latency. In phishing detection, recall is especially important because false negatives mean phishing URLs are missed. However, precision is also important because too many false positives can reduce user trust.
+One important preprocessing step is label conversion. The UCI dataset uses:
 
-**Figure 2. Streamlit interface placeholder**
+```text
+0 = phishing
+1 = legitimate
+```
 
-![Figure 2: Streamlit interface placeholder](figures/streamlit_interface_placeholder.png)
+PhishGuard-Lite uses:
+
+```text
+0 = legitimate
+1 = phishing
+```
+
+Therefore, the evaluation script converts the UCI labels before training and testing. For runtime control, the reported UCI experiment uses a balanced 30,000-row sample from the full dataset. The optional character-CNN uses a bounded subset of 12,000 total examples because neural training is slower on a normal laptop.
+
+The evaluation metrics are accuracy, precision, recall, F1-score, true positive rate, false positive rate, confusion matrix, training time, and prediction latency. Recall is important because false negatives mean phishing URLs are missed. Precision is also important because too many false positives can reduce user trust.
+
+**Figure 2. Streamlit interface**
+
+![Figure 2: Streamlit interface](figures/streamlit_interface_placeholder.png)
 
 ## 11. Results
 
-The exact results depend on the dataset, train/test split, installed dependencies, and whether the optional Hugging Face model is enabled. The included sample dataset is small and should be interpreted as a demonstration dataset, not a real benchmark.
+The demonstration dataset verifies that the basic pipeline works. The saved Random Forest model achieved an overall evaluation accuracy of 0.9625, precision of 1.0000, recall of 0.9250, and F1-score of 0.9610 when evaluated across the demonstration CSV. These results should not be treated as real-world performance because the dataset is small and contains synthetic phishing-style examples.
 
-After running:
-
-```bash
-python train.py
-python generate_report_assets.py
-```
-
-the project generates tables in `results/tables/` and figures in `results/figures/` and `report/figures/`.
-
-On the included demonstration dataset, the saved Random Forest model achieved an overall evaluation accuracy of 0.9625, precision of 1.0000, recall of 0.9250, and F1-score of 0.9610 when evaluated across the sample CSV. The false positive rate was 0.0000 and the true positive rate was 0.9250. These values are useful for checking that the implementation works, but they should not be interpreted as real-world benchmark results because the dataset is small and contains synthetic phishing-style examples.
-
-**Figure 3. Confusion matrix placeholder**
+**Figure 3. Demonstration confusion matrix**
 
 ![Figure 3: Confusion matrix](figures/confusion_matrix.png)
 
-**Figure 4. Feature importance placeholder**
+**Figure 4. Random Forest feature importance**
 
 ![Figure 4: Feature importance](figures/feature_importance.png)
 
-**Table 4. Latency comparison**
+**Table 4. Latency comparison on the local demonstration pipeline**
 
 | Component | Average latency | Notes |
 |---|---:|---|
@@ -265,13 +247,7 @@ On the included demonstration dataset, the saved Random Forest model achieved an
 | Rule-based layer | 0.000027 seconds | Transparent feature threshold scoring |
 | Hugging Face model | Not measured by default | Depends on model download, hardware, and selected model |
 
-The expected pattern is that the Random Forest model should perform strongly on the small demonstration dataset because the synthetic phishing examples contain clear suspicious indicators. This result should be discussed carefully. Strong performance on a small synthetic dataset does not prove that the system would perform equally well on real phishing campaigns.
-
-### External Dataset Evaluation: UCI PhiUSIIL
-
-To test the project on a real external dataset, the system was also evaluated on the UCI Machine Learning Repository dataset **PhiUSIIL Phishing URL (Website)**, dataset ID 967. The dataset contains 235,795 examples with 100,945 phishing URLs and 134,850 legitimate URLs. For runtime control during this project run, a balanced 30,000-row sample was used. The dataset's original label convention is `0 = phishing` and `1 = legitimate`, while this project uses `0 = legitimate` and `1 = phishing`; therefore, labels were converted before training and evaluation.
-
-The UCI dataset contains both URL-related fields and webpage-derived features. To keep the evaluation aligned with PhishGuard-Lite, the benchmark used the raw `URL` column and then extracted this project's own handcrafted URL features. This means the test is a practical URL-only adaptation, not a full use of every feature provided by the dataset.
+The more important evaluation is the UCI PhiUSIIL experiment. The table below reports results on a balanced 30,000-row UCI sample, except for the character-CNN, which was trained on a bounded subset for runtime control.
 
 **Table 5. UCI PhiUSIIL real-dataset benchmark results**
 
@@ -284,93 +260,107 @@ The UCI dataset contains both URL-related fields and webpage-derived features. T
 | Character TF-IDF + Logistic Regression | 30,000 | 0.9932 | 1.0000 | 0.9863 | 0.9931 | 0.0000 |
 | Character-CNN URL model | 12,000 | 0.9862 | 1.0000 | 0.9723 | 0.9860 | 0.0000 |
 
-These results suggest that the handcrafted URL features generalize well to the sampled UCI dataset. However, the high scores should still be interpreted cautiously. The PhiUSIIL dataset appears to contain URL patterns that are strongly separable, and this does not guarantee equal performance against future adversarial phishing URLs. The character TF-IDF model provides a useful additional comparison because it learns from raw URL text rather than the manually designed feature table. The character-CNN result is lower after only one epoch of bounded training, which shows that a deep learning model is not automatically better than a well-designed lightweight baseline.
+**Figure 6. UCI PhiUSIIL Random Forest confusion matrix**
+
+![Figure 6: UCI PhiUSIIL Random Forest confusion matrix](figures/uci_phiusiil_confusion_matrix_rf.png)
+
+**Figure 7. UCI PhiUSIIL character TF-IDF confusion matrix**
+
+![Figure 7: UCI PhiUSIIL character TF-IDF confusion matrix](figures/uci_phiusiil_confusion_matrix_tfidf.png)
+
+The UCI results show that the handcrafted URL features perform strongly on the sampled real dataset. Gradient Boosting achieved the highest F1-score, followed closely by Random Forest and the character TF-IDF model. The character TF-IDF model is valuable because it learns directly from URL text instead of manually engineered features. The character-CNN result is slightly lower after one epoch of bounded training, which is a useful reminder that deep learning is not automatically better than lightweight baselines, especially when training time and dataset size are limited.
 
 ## 12. Discussion
 
-PhishGuard-Lite demonstrates that a lightweight phishing detection prototype can be built from simple and interpretable components. URL features are fast to compute and do not require visiting potentially harmful websites. Classical machine learning models are easy to train and deploy locally. Feature selection helps identify which features are most informative and supports the goal of lightweight detection.
+The results support the main goal of the project: a lightweight URL-based phishing detector can be accurate, fast, explainable, and easy to run locally. On the UCI sample, both structured handcrafted features and raw character n-gram text features achieved strong performance. This suggests that phishing URLs often contain measurable lexical and structural patterns.
 
-The hybrid design has practical advantages. If the Hugging Face model is available, it can provide an additional pretrained text-based signal. If it is unavailable, the system still works. This is important in student environments where internet access, model cache availability, and hardware resources may be inconsistent.
+The comparison between models is also instructive. Random Forest is a good main model because it balances performance, speed, and interpretability. Gradient Boosting achieved the best reported UCI F1-score, but Random Forest remains easier to explain through feature importance. Logistic Regression and Linear SVM performed well, showing that the feature representation itself is highly informative. The character TF-IDF model performed competitively, making it a useful additional model for project difficulty. The character-CNN worked, but did not outperform the simpler methods in the bounded experiment.
 
-False positives and false negatives must be considered carefully. A false positive occurs when a legitimate URL is classified as phishing. This can frustrate users and reduce confidence in the system. A false negative occurs when a phishing URL is classified as legitimate. This is more dangerous because it may expose a user to credential theft or malware. In a real security setting, the threshold could be adjusted depending on whether the priority is reducing false positives or reducing false negatives.
+False positives and false negatives should be interpreted carefully. A false positive blocks or warns about a legitimate URL, which can frustrate users. A false negative allows a phishing URL through, which is more dangerous from a security perspective. In a real deployment, the decision threshold could be adjusted depending on whether the priority is reducing false positives or reducing missed phishing attempts.
 
-The project also shows the difference between explainability and interpretability. Random Forest feature importance gives a global view of useful features, while the rule-based explanation layer gives local reasons for one URL. These explanations are useful for presentation and education, but they should not be confused with rigorous causal explanations.
+The high UCI scores are encouraging but should not be exaggerated. The UCI dataset may contain separable patterns that are easier than current adversarial phishing campaigns. A real-world deployment would require continuous evaluation on fresh data, monitoring for drift, and integration with other signals beyond the URL string.
 
 ## 13. Limitations
 
-The project has several important limitations:
+This project has several limitations:
 
-- The included dataset is small and partly synthetic, so it is not a production benchmark.
-- The system uses URL-only detection and does not inspect webpage content.
-- The Hugging Face model may be unavailable without internet access or sufficient local resources.
-- The system does not perform live crawling, JavaScript execution, screenshot comparison, or form analysis.
-- Rule-based explanations are understandable but are not full XAI methods.
-- The feature list does not include WHOIS data, domain age, DNS records, certificate metadata, or hosting reputation.
-- Attackers can design URLs that avoid many obvious suspicious features.
+- The small built-in dataset is synthetic and should only be used for demonstration.
+- The UCI benchmark uses a balanced 30,000-row sample, not the full dataset in the reported run.
+- The UCI experiment uses only the raw URL column, not all webpage-derived PhiUSIIL features.
+- The system mainly performs URL-only detection and does not inspect live webpage content.
+- The Hugging Face model layer may be unavailable without internet access or sufficient resources.
+- The character-CNN was trained for a bounded one-epoch experiment and was not fully optimized.
+- Rule-based explanations are understandable but are not full formal XAI.
+- The feature set does not include WHOIS data, domain age, DNS records, certificate metadata, hosting reputation, or live threat intelligence.
+- Attackers can create adversarial URLs that avoid obvious suspicious indicators.
 
-These limitations are acceptable for a university prototype, but they must be acknowledged when interpreting the results.
+These limitations do not invalidate the project. They define its scope as a defensive, educational, lightweight prototype rather than a production phishing protection system.
 
 ## 14. Future Work
 
-Several improvements would make PhishGuard-Lite more realistic and useful for future study. A browser extension could allow users to test links directly while browsing. Live webpage text extraction could add content-based features, such as page title, visible text, form fields, and login prompts. WHOIS and domain age features could help identify newly registered suspicious domains. DNS, certificate, and hosting metadata could provide additional security context.
+Future work could improve the project in several ways. A browser extension could analyze links directly while a user browses. Live webpage text extraction could add page titles, visible text, forms, login fields, and script indicators. WHOIS and domain age features could help detect newly registered suspicious domains. DNS, TLS certificate, hosting, and reputation features could add more security context.
 
-Future experiments should also use larger public benchmark datasets and more careful cross-validation. Adversarial URL testing would be useful because attackers may intentionally design URLs that avoid obvious suspicious indicators. Finally, a stronger explainability layer could be added using SHAP or other local explanation methods, although this should be balanced against the project's lightweight design goal.
+The machine learning side could also be extended. The full UCI dataset could be evaluated with cross-validation. The character-CNN could be trained longer and tuned more carefully. Transformer fine-tuning could be attempted on URL text if computing resources are available. SHAP or other local explanation methods could be added for stronger explainability. Adversarial URL testing would be especially valuable because attackers intentionally design URLs to bypass detection rules.
 
 ## 15. Conclusion
 
-This report presented PhishGuard-Lite, a lightweight hybrid phishing URL detection system. The project combines handcrafted URL feature extraction, feature selection, classical machine learning, optional pretrained Hugging Face models, hybrid scoring, and simple explanations. It is designed as a practical adaptation of research ideas around phishing detection, feature selection, and pretrained models, rather than a full reproduction of a specific paper.
+PhishGuard-Lite demonstrates a practical lightweight phishing URL detection system. It combines handcrafted feature extraction, feature selection, classical machine learning, optional Hugging Face pretrained inference, character n-gram URL modeling, an optional character-CNN, hybrid risk scoring, and simple explanations. The project is a practical adaptation of research ideas around phishing detection, feature selection, and pretrained/deep learning models, not a full reproduction of any specific paper.
 
-The main value of the project is educational. It provides a runnable system that demonstrates how URL features can be converted into model inputs, how lightweight models can be trained, how feature selection can be evaluated, how pretrained models can be integrated with fallback behavior, and how results can be explained in a classroom setting. The system is not a replacement for production phishing protection, but it is a clear foundation for further experimentation.
+The project's strongest result is that the same system can support both classroom demonstration and external dataset evaluation. On the UCI PhiUSIIL sample, lightweight models achieved strong accuracy and F1-scores while remaining fast and explainable. At the same time, the report is careful not to overstate the result: URL-only detection is useful but incomplete, and real phishing defense requires broader signals, fresh data, and continuous evaluation.
 
 ## 16. References
 
 1. Scikit-learn Developers. *Scikit-learn: Machine Learning in Python*. https://scikit-learn.org/
 2. Hugging Face. *Transformers Documentation*. https://huggingface.co/docs/transformers/
 3. Streamlit. *Streamlit Documentation*. https://docs.streamlit.io/
-4. OWASP. *Phishing and Social Engineering Security Guidance*. https://owasp.org/
-5. NIST. *Cybersecurity Framework*. https://www.nist.gov/cyberframework
-6. Breiman, L. (2001). Random Forests. *Machine Learning*, 45, 5-32.
-7. Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. *Journal of Machine Learning Research*, 12, 2825-2830.
-8. UCI Machine Learning Repository. *PhiUSIIL Phishing URL (Website) Dataset*. Dataset ID 967. https://archive.ics.uci.edu/
+4. UCI Machine Learning Repository. *PhiUSIIL Phishing URL (Website) Dataset*. Dataset ID 967. https://archive.ics.uci.edu/
+5. OWASP. *Phishing and Social Engineering Security Guidance*. https://owasp.org/
+6. NIST. *Cybersecurity Framework*. https://www.nist.gov/cyberframework
+7. Breiman, L. (2001). Random Forests. *Machine Learning*, 45, 5-32.
+8. Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. *Journal of Machine Learning Research*, 12, 2825-2830.
 
 ## Classroom Presentation Section
 
 ### Demo steps
 
-1. Open the Streamlit app with `streamlit run app.py`.
+1. Open the app with `streamlit run app.py`.
 2. Start with the single URL tab.
 3. Enter a clearly synthetic suspicious URL such as `https://paypal.verify-account.example-login.test/security/update`.
-4. Show the final prediction, risk level, and confidence score.
-5. Explain the model comparison table: classical ML score, Hugging Face score, rule-based score, and final hybrid score.
-6. Show the explanation list and extracted feature table.
-7. Move to batch evaluation and upload `data/sample_urls.csv`.
-8. Show the confusion matrix and metrics.
-9. Show the feature importance chart in the model details tab.
+4. Show the final prediction, risk level, confidence score, model comparison, and explanations.
+5. Show the extracted feature table and connect it to Table 1 in the report.
+6. Move to batch evaluation and upload `data/sample_urls.csv`.
+7. Show the confusion matrix and feature importance chart.
+8. Open the Real Dataset Results tab and show the UCI PhiUSIIL benchmark table.
+9. Explain why the UCI label conversion was necessary.
+10. Compare Random Forest, Gradient Boosting, character TF-IDF, and character-CNN results.
 
 ### What to show first
 
-Start with the single URL analysis because it is easiest for the audience to understand. The teacher can immediately see the input, prediction, risk level, and explanation. After that, move to the dataset evaluation to show that the project also supports machine learning metrics.
+Start with the single URL analysis because it is the easiest part for the audience to understand. Then show feature explanations to connect the interface to the machine learning pipeline. After that, show the real UCI benchmark results to demonstrate that the project was tested beyond the synthetic demo dataset.
 
 ### What results to explain
 
-Explain accuracy, precision, recall, F1-score, true positive rate, false positive rate, confusion matrix, feature importance, and latency. Emphasize that recall is important because missed phishing URLs are risky, while precision is important because excessive false alarms reduce user trust.
+Explain accuracy, precision, recall, F1-score, true positive rate, false positive rate, confusion matrix, feature importance, and latency. Emphasize recall because missed phishing URLs are dangerous. Also explain precision because too many false warnings reduce user trust. For the deep learning variant, explain that the character-CNN worked but did not beat the simpler baselines in the bounded run.
 
 ### Likely teacher questions and short answers
 
 **Question:** Is this a full reproduction of the referenced paper?  
-**Answer:** No. It is a practical adaptation. It uses the same broad ideas of phishing detection, feature selection, machine learning, and pretrained models, but it does not use the exact dataset or experimental setup from the paper.
+**Answer:** No. It is a practical adaptation. It uses the same broad ideas of phishing detection, feature selection, machine learning, and pretrained/deep models, but it does not reproduce the exact original dataset or protocol.
 
-**Question:** Why use URL features instead of webpage content?  
-**Answer:** URL features are lightweight, fast, and safer to extract because the system does not need to visit suspicious websites.
+**Question:** Why use URL-only detection?  
+**Answer:** URL-only detection is lightweight, fast, and safe because the system does not need to visit suspicious websites. It is useful as an early warning layer, but it is not complete protection.
 
-**Question:** Why is Random Forest the main model?  
-**Answer:** It works well with structured numeric features, captures nonlinear patterns, and provides feature importance for explanation.
+**Question:** Why was the UCI label conversion necessary?  
+**Answer:** The UCI PhiUSIIL dataset uses `0 = phishing` and `1 = legitimate`, while this project uses `0 = legitimate` and `1 = phishing`. Without conversion, the evaluation would be wrong.
+
+**Question:** Why does the character-CNN not outperform the classical models?  
+**Answer:** Deep learning is not automatically better. The CNN was trained in a bounded one-epoch experiment for runtime control, while the handcrafted features are highly informative for this dataset.
+
+**Question:** Why keep Random Forest as the main model if Gradient Boosting scored slightly higher?  
+**Answer:** Random Forest is accurate, fast, stable, and easier to explain with feature importance. Gradient Boosting is a strong comparison model but not necessarily the best classroom-facing default.
 
 **Question:** What happens if the Hugging Face model fails to load?  
-**Answer:** The app continues running with the classical ML model and rule-based layer using the fallback hybrid formula.
-
-**Question:** Are the explanations full explainable AI?  
-**Answer:** No. They are rule-based explanations for readability. They help users understand suspicious indicators, but they are not a complete XAI method.
+**Answer:** The system continues running with the classical model and rule-based layer using the fallback hybrid formula.
 
 **Question:** Can this detect all phishing URLs?  
-**Answer:** No. It is a prototype. Real phishing detection requires larger datasets, live threat intelligence, content analysis, and continuous updates.
+**Answer:** No. It is a prototype. Real phishing defense requires fresh datasets, live threat intelligence, content analysis, domain metadata, and continuous monitoring.
