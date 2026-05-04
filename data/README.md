@@ -10,3 +10,6 @@ The dataset uses:
 The phishing examples are synthetic or reserved-domain style URLs for educational testing. They are not real credential-stealing sites and should not be interpreted as a production benchmark.
 
 You can add a larger dataset manually as long as it uses the same two columns.
+
+
+Quelle PhilUSIIL: https://archive.ics.uci.edu/dataset/967/phiusiil+phishing+url+dataset
