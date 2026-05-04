@@ -267,25 +267,6 @@ On the included demonstration dataset, the saved Random Forest model achieved an
 
 The expected pattern is that the Random Forest model should perform strongly on the small demonstration dataset because the synthetic phishing examples contain clear suspicious indicators. This result should be discussed carefully. Strong performance on a small synthetic dataset does not prove that the system would perform equally well on real phishing campaigns.
 
-### External Dataset Evaluation: UCI PhiUSIIL
-
-To test the project on a real external dataset, the system was also evaluated on the UCI Machine Learning Repository dataset **PhiUSIIL Phishing URL (Website)**, dataset ID 967. The dataset contains 235,795 examples with 100,945 phishing URLs and 134,850 legitimate URLs. For runtime control during this project run, a balanced 30,000-row sample was used. The dataset's original label convention is `0 = phishing` and `1 = legitimate`, while this project uses `0 = legitimate` and `1 = phishing`; therefore, labels were converted before training and evaluation.
-
-The UCI dataset contains both URL-related fields and webpage-derived features. To keep the evaluation aligned with PhishGuard-Lite, the benchmark used the raw `URL` column and then extracted this project's own handcrafted URL features. This means the test is a practical URL-only adaptation, not a full use of every feature provided by the dataset.
-
-**Table 5. UCI PhiUSIIL real-dataset benchmark results**
-
-| Model | Rows | Accuracy | Precision | Recall | F1-score | False positive rate |
-|---|---:|---:|---:|---:|---:|---:|
-| Handcrafted features + Logistic Regression | 30,000 | 0.9915 | 1.0000 | 0.9830 | 0.9914 | 0.0000 |
-| Handcrafted features + Random Forest | 30,000 | 0.9947 | 1.0000 | 0.9893 | 0.9946 | 0.0000 |
-| Handcrafted features + Linear SVM | 30,000 | 0.9913 | 1.0000 | 0.9827 | 0.9913 | 0.0000 |
-| Handcrafted features + Gradient Boosting | 30,000 | 0.9952 | 0.9997 | 0.9907 | 0.9951 | 0.0003 |
-| Character TF-IDF + Logistic Regression | 30,000 | 0.9932 | 1.0000 | 0.9863 | 0.9931 | 0.0000 |
-| Character-CNN URL model | 12,000 | 0.9862 | 1.0000 | 0.9723 | 0.9860 | 0.0000 |
-
-These results suggest that the handcrafted URL features generalize well to the sampled UCI dataset. However, the high scores should still be interpreted cautiously. The PhiUSIIL dataset appears to contain URL patterns that are strongly separable, and this does not guarantee equal performance against future adversarial phishing URLs. The character TF-IDF model provides a useful additional comparison because it learns from raw URL text rather than the manually designed feature table. The character-CNN result is lower after only one epoch of bounded training, which shows that a deep learning model is not automatically better than a well-designed lightweight baseline.
-
 ## 12. Discussion
 
 PhishGuard-Lite demonstrates that a lightweight phishing detection prototype can be built from simple and interpretable components. URL features are fast to compute and do not require visiting potentially harmful websites. Classical machine learning models are easy to train and deploy locally. Feature selection helps identify which features are most informative and supports the goal of lightweight detection.
@@ -331,7 +312,6 @@ The main value of the project is educational. It provides a runnable system that
 5. NIST. *Cybersecurity Framework*. https://www.nist.gov/cyberframework
 6. Breiman, L. (2001). Random Forests. *Machine Learning*, 45, 5-32.
 7. Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python. *Journal of Machine Learning Research*, 12, 2825-2830.
-8. UCI Machine Learning Repository. *PhiUSIIL Phishing URL (Website) Dataset*. Dataset ID 967. https://archive.ics.uci.edu/
 
 ## Classroom Presentation Section
 

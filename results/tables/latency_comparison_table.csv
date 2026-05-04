@@ -1,4 +1,4 @@
 component,average_latency_seconds,notes
-Classical ML model,0.003701,Random Forest over handcrafted URL features
-Rule-based layer,2.7e-05,Transparent feature threshold scoring
+Classical ML model,0.002312,Random Forest over handcrafted URL features
+Rule-based layer,2.2e-05,Transparent feature threshold scoring
 Hugging Face model,Not measured by default,"Optional layer; depends on download, hardware, and chosen model"

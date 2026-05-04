@@ -92,7 +92,9 @@ with st.sidebar:
 
 detector = HybridPhishingDetector(use_hf=use_hf)
 
-tab_single, tab_batch, tab_model = st.tabs(["Single URL", "Batch Evaluation", "Model Details"])
+tab_single, tab_batch, tab_model, tab_real = st.tabs(
+    ["Single URL", "Batch Evaluation", "Model Details", "Real Dataset Results"]
+)
 
 with tab_single:
     st.subheader("Single URL Analysis")
@@ -157,3 +159,23 @@ with tab_model:
 
     st.markdown("#### Feature names")
     st.dataframe(pd.DataFrame({"feature": bundle["feature_names"]}), use_container_width=True, hide_index=True)
+
+with tab_real:
+    st.subheader("UCI PhiUSIIL Real Dataset Benchmark")
+    results_path = Path("results/tables/uci_phiusiil_real_dataset_results.csv")
+    if results_path.exists():
+        results_df = pd.read_csv(results_path)
+        st.dataframe(results_df, use_container_width=True, hide_index=True)
+        st.caption(
+            "UCI PhiUSIIL labels are converted to the project convention: "
+            "0 = legitimate, 1 = phishing. Raw external URLs are not shown in the app."
+        )
+        figure_paths = [
+            Path("results/figures/uci_phiusiil_confusion_matrix_rf.png"),
+            Path("results/figures/uci_phiusiil_confusion_matrix_tfidf.png"),
+        ]
+        for figure_path in figure_paths:
+            if figure_path.exists():
+                st.image(str(figure_path))
+    else:
+        st.info("Run `python real_dataset_eval.py --max-rows 30000` to generate real-dataset results.")

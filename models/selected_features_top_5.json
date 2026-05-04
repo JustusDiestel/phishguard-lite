@@ -3,5 +3,5 @@
   "domain_length",
   "subdomain_count",
   "url_length",
-  "contains_login"
+  "num_special_chars"
 ]

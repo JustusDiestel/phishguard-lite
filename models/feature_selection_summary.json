@@ -35,40 +35,40 @@
     "domain_length",
     "subdomain_count",
     "url_length",
-    "contains_login",
-    "contains_update",
-    "entropy_score",
-    "num_hyphens",
     "num_special_chars",
-    "contains_secure"
+    "num_hyphens",
+    "contains_login",
+    "contains_secure",
+    "entropy_score",
+    "contains_update"
   ],
   "top_20_mutual_info": [
     "has_https",
     "domain_length",
     "subdomain_count",
     "url_length",
-    "contains_login",
-    "contains_update",
-    "entropy_score",
-    "num_hyphens",
     "num_special_chars",
+    "num_hyphens",
+    "contains_login",
     "contains_secure",
-    "num_slashes",
+    "entropy_score",
+    "contains_update",
     "contains_verify",
-    "contains_account",
-    "has_url_shortener",
+    "contains_amazon",
+    "num_slashes",
     "num_dots",
-    "contains_bank",
-    "contains_paypal",
+    "contains_account",
+    "path_length",
+    "num_digits",
+    "has_ip_address",
     "contains_microsoft",
-    "has_suspicious_tld",
-    "contains_amazon"
+    "contains_google"
   ],
   "top_5_mutual_info": [
     "has_https",
     "domain_length",
     "subdomain_count",
     "url_length",
-    "contains_login"
+    "num_special_chars"
   ]
 }
